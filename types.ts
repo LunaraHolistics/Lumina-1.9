@@ -1,0 +1,93 @@
+
+export enum Polarity {
+  POSITIVE = 'Positiva',
+  NEGATIVE = 'Negativa',
+  NEUTRAL = 'Neutra'
+}
+
+export enum Timing {
+  FAST = 'Rápido',
+  MODERATE = 'Moderado',
+  SLOW = 'Lento',
+  INSTANT = 'Imediato',
+  UNCERTAIN = 'Incerto',
+  VERY_FAST = 'Muito Rápido',
+  LONG = 'Longo',
+  VERY_LONG = 'Muito Longo'
+}
+
+export type StudyLevel = 'Iniciante' | 'Intermediário' | 'Avançado';
+export type ReadingTheme = 'Geral' | 'Amor & Relacionamentos' | 'Trabalho & Finanças' | 'Espiritualidade & Caminho de Vida';
+
+export interface LenormandCard {
+  id: number;
+  name: string;
+  polarity: Polarity;
+  timingSpeed: Timing;
+  timingScale: string;
+  timingCategory: 'Acelera' | 'Mantém' | 'Retarda' | 'Bloqueia' | 'N/A';
+  keywords: string[];
+  briefInterpretation: string;
+  interpretationAtOrigin: string;
+  symbolicEnergy: string;
+  suit: string;
+  description: string;
+  // Novos campos ricos do JSON Mestre
+  amor?: string;
+  trabalho?: string;
+  dinheiro?: string;
+  conselhos?: string;
+}
+
+export interface LenormandHouse {
+  id: number;
+  name: string;
+  polarity: Polarity;
+  theme: string;
+  technicalDescription: string;
+  pedagogicalRule: string;
+  isClockHouse?: boolean;
+  month?: string;
+  zodiac?: string;
+}
+
+export type SpreadType = 'mesa-real' | 'relogio' | 'mesa-9' | 'templo-afrodite' | 'piramide';
+
+// GeometryFilter type for board filtering techniques
+export type GeometryFilter = 'nenhuma' | 'todas' | 'ponte' | 'cavalo' | 'moldura' | 'veredito' | 'diagonais' | 'centro' | 'cruz';
+
+export interface StudyTrack {
+  id: string;
+  level: StudyLevel;
+  title: string;
+  description: string;
+  lessons: { id: string; title: string; content: string; completed: boolean }[];
+}
+
+export interface FundamentalModule {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  concepts: { 
+    title: string; 
+    text: string; 
+    example?: string; 
+    details?: string;
+    practiceTarget?: SpreadType;
+    id?: string;
+  }[];
+}
+
+export interface StudyModeState {
+  active: boolean;
+  topicId: string | null;
+  practiceTarget: 'mesa-real' | 'relogio' | 'mesa-9' | 'templo-afrodite' | 'piramide' | null;
+  splitView: boolean;
+}
+
+export interface StudyBalloon {
+  target: string;
+  title: string;
+  text: string;
+}
