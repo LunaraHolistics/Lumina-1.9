@@ -1019,32 +1019,15 @@ const App: React.FC = () => {
       const showAll = geometryFilters.has("todas");
 
       if (spreadType === "mesa-9") {
-        if (
-          (showAll || geometryFilters.has("centro")) &&
-          Geometry.isCenter9Cards(idx)
-        )
-          return "center";
-        if (
-          (showAll || geometryFilters.has("cruz")) &&
-          Geometry.getFixedCross9().includes(idx)
-        )
-          return "cruz";
-        if (
-          (showAll || geometryFilters.has("diagonais")) &&
-          Geometry.getFixedDiagonals9().includes(idx)
-        )
-          return "diag-up";
+        if ((showAll || geometryFilters.has("centro")) && Geometry.isCenter9Cards(idx)) return "center";
+        if ((showAll || geometryFilters.has("cruz")) && Geometry.getFixedCross9().includes(idx)) return "cruz";
+        if ((showAll || geometryFilters.has("diagonais")) && Geometry.getFixedDiagonals9().includes(idx)) return "diag-up";
         return null;
       }
 
       if (spreadType === "mesa-real") {
-        if (
-          (showAll || geometryFilters.has("moldura")) &&
-          Geometry.getMoldura().includes(idx)
-        )
-          return "frame";
-        if ((showAll || geometryFilters.has("veredito")) && idx >= 32)
-          return "veredito";
+        if ((showAll || geometryFilters.has("moldura")) && Geometry.getMoldura().includes(idx)) return "frame";
+        if ((showAll || geometryFilters.has("veredito")) && idx >= 32) return "veredito";
         if (selectedHouse !== null) {
           if (showAll || geometryFilters.has("ponte")) {
             const targetId = selectedHouse + 1;
@@ -1052,13 +1035,10 @@ const App: React.FC = () => {
             if (idx === targetIdx) return "bridge";
           }
           if (showAll || geometryFilters.has("cavalo"))
-            if (Geometry.getCavalo(selectedHouse).includes(idx))
-              return "knight";
+            if (Geometry.getCavalo(selectedHouse).includes(idx)) return "knight";
           if (showAll || geometryFilters.has("diagonais")) {
-            if (Geometry.getDiagonaisSuperiores(selectedHouse).includes(idx))
-              return "diag-up";
-            if (Geometry.getDiagonaisInferiores(selectedHouse).includes(idx))
-              return "diag-down";
+            if (Geometry.getDiagonaisSuperiores(selectedHouse).includes(idx)) return "diag-up";
+            if (Geometry.getDiagonaisInferiores(selectedHouse).includes(idx)) return "diag-down";
           }
         }
       }
@@ -1074,80 +1054,118 @@ const App: React.FC = () => {
 
     if (studyMode.active && studyMode.topicId) {
       const topicId = studyMode.topicId;
-      if (
-        (topicId.includes("frame") || topicId.includes("moldura")) &&
-        Geometry.getMoldura().includes(idx)
-      )
-        return "frame";
-      if (
-        (topicId.includes("veredict") || topicId.includes("veredito")) &&
-        idx >= 32
-      )
-        return "veredito";
-      if (selectedHouse !== null) {
-        if (topicId.includes("ponte")) {
-          const targetId = selectedHouse + 1;
-          const targetIdx = board.findIndex((id) => id === targetId);
-          if (idx === targetIdx) return "bridge";
-        }
-        if (topicId.includes("knight") || topicId.includes("cavalo"))
-          if (Geometry.getCavalo(selectedHouse).includes(idx)) return "knight";
-        if (topicId.includes("mirror") || topicId.includes("espelho"))
-          if (Geometry.getEspelhamentos(selectedHouse).includes(idx))
-            return "mirror";
-        if (topicId.includes("diagonal-superior"))
-          if (Geometry.getDiagonaisSuperiores(selectedHouse).includes(idx))
-            return "diag-up";
-        if (topicId.includes("diagonal-inferior"))
-          if (Geometry.getDiagonaisInferiores(selectedHouse).includes(idx))
-            return "diag-down";
-        if (topicId.includes("diagonal") && !topicId.includes("-")) {
-          if (Geometry.getDiagonaisSuperiores(selectedHouse).includes(idx))
-            return "diag-up";
-          if (Geometry.getDiagonaisInferiores(selectedHouse).includes(idx))
-            return "diag-down";
+
+      // ----- MESA REAL -----
+      if (spreadType === "mesa-real") {
+        if ((topicId.includes("frame") || topicId.includes("moldura")) && Geometry.getMoldura().includes(idx)) return "frame";
+        if ((topicId.includes("veredict") || topicId.includes("veredito")) && idx >= 32) return "veredito";
+
+        if (selectedHouse !== null) {
+          if (topicId.includes("ponte")) {
+            const targetId = selectedHouse + 1;
+            const targetIdx = board.findIndex((id) => id === targetId);
+            if (idx === targetIdx) return "bridge";
+          }
+          if (topicId.includes("knight") || topicId.includes("cavalo"))
+            if (Geometry.getCavalo(selectedHouse).includes(idx)) return "knight";
+          if (topicId.includes("mirror") || topicId.includes("espelho"))
+            if (Geometry.getEspelhamentos(selectedHouse).includes(idx)) return "mirror";
+          if (topicId.includes("diagonal-superior"))
+            if (Geometry.getDiagonaisSuperiores(selectedHouse).includes(idx)) return "diag-up";
+          if (topicId.includes("diagonal-inferior"))
+            if (Geometry.getDiagonaisInferiores(selectedHouse).includes(idx)) return "diag-down";
+          if (topicId.includes("diagonal") && !topicId.includes("-")) {
+            if (Geometry.getDiagonaisSuperiores(selectedHouse).includes(idx)) return "diag-up";
+            if (Geometry.getDiagonaisInferiores(selectedHouse).includes(idx)) return "diag-down";
+          }
+          // Linhas & Colunas: ambiente (linha) x tempo (coluna)
+          if (topicId.includes("mesa-linhas") && idx < 32 && selectedHouse < 32) {
+            const lin = Math.floor(selectedHouse / 8);
+            const col = selectedHouse % 8;
+            if (idx === selectedHouse) return "center";
+            if (Math.floor(idx / 8) === lin && idx % 8 === col) return "center";
+            if (Math.floor(idx / 8) === lin) return "bridge";
+            if (idx % 8 === col) return "axis";
+          }
         }
       }
+
+      // ----- RELÓGIO -----
       if (spreadType === "relogio") {
         if (topicId.includes("center") || topicId.includes("centro"))
           if (idx === 12) return "center";
-        if (topicId.includes("house") || topicId.includes("casa"))
-          return "axis";
+        if (topicId.includes("house") || topicId.includes("casa")) return "axis";
         if (topicId.includes("oposicao") || topicId.includes("opposition"))
-          if (
-            selectedHouse !== null &&
-            idx === Geometry.getOposicaoRelogio(selectedHouse)
-          )
-            return "axis";
+          if (selectedHouse !== null && idx === Geometry.getOposicaoRelogio(selectedHouse)) return "axis";
+        // Dinâmica do Tempo: anterior = passado, seguinte = futuro, centro = filtro
+        if ((topicId.includes("tempo") || topicId.includes("ciclo")) && selectedHouse !== null && selectedHouse < 12) {
+          if (idx === selectedHouse) return "center";
+          if (idx === (selectedHouse + 11) % 12) return "diag-down";
+          if (idx === (selectedHouse + 1) % 12) return "diag-up";
+          if (idx === 12) return "bridge";
+        }
       }
+
+      // ----- MESA DE 9 -----
       if (spreadType === "mesa-9") {
-        if (topicId.includes("center") && Geometry.isCenter9Cards(idx))
-          return "center";
-        if (
-          topicId.includes("diagonals") &&
-          Geometry.getFixedDiagonals9().includes(idx)
-        )
-          return "diag-up";
-        if (
-          topicId.includes("cross") &&
-          Geometry.getFixedCross9().includes(idx)
-        )
-          return "cruz";
-        if (
-          topicId.includes("column") &&
-          Geometry.getFixedColumns9().includes(idx)
-        )
-          return "axis";
+        if (topicId.includes("center") || topicId.includes("centro"))
+          if (Geometry.isCenter9Cards(idx)) return "center";
+        if ((topicId.includes("diagonals") || topicId.includes("diagonal")) && Geometry.getFixedDiagonals9().includes(idx)) return "diag-up";
+        if ((topicId.includes("cross") || topicId.includes("cruz")) && Geometry.getFixedCross9().includes(idx)) return "cruz";
+        if (selectedHouse !== null) {
+          if ((topicId.includes("coluna") || topicId.includes("column")) && idx % 3 === selectedHouse % 3) return "axis";
+          if (topicId.includes("linha") && !topicId.includes("diagonal") && Math.floor(idx / 3) === Math.floor(selectedHouse / 3)) return "bridge";
+        }
+        if ((topicId.includes("moldura") || topicId.includes("cantos")) && [0, 2, 6, 8].includes(idx)) return "frame";
+      }
+
+      // ----- TEMPLO DE AFRODITE -----
+      if (spreadType === "templo-afrodite") {
+        if (topicId.includes("sintese")) {
+          if (idx === 6) return "center";
+        } else if (topicId.includes("par") || topicId.includes("espelho")) {
+          if (selectedHouse !== null && selectedHouse < 6) {
+            const par = selectedHouse < 3 ? selectedHouse + 3 : selectedHouse - 3;
+            if (idx === selectedHouse) return "center";
+            if (idx === par) return "mirror";
+          }
+          if (idx === 6) return "bridge";
+        } else if (topicId.includes("polo") || topicId.includes("compar")) {
+          if (idx === 6) return "center";
+          if (selectedHouse !== null && selectedHouse < 6) {
+            const poloSel = selectedHouse < 3 ? 0 : 3;
+            const poloOutro = poloSel === 0 ? 3 : 0;
+            if (idx >= poloSel && idx <= poloSel + 2) return "axis";
+            if (idx >= poloOutro && idx <= poloOutro + 2) return "frame";
+          }
+        }
+      }
+
+      // ----- PIRÂMIDE -----
+      if (spreadType === "piramide") {
+        if (topicId.includes("fluxo")) {
+          if (selectedHouse !== null) {
+            const origens: Record<number, number[]> = { 3: [0, 1], 4: [1, 2], 5: [3, 4] };
+            const alvos: Record<number, number[]> = { 0: [3], 1: [3, 4], 2: [4], 3: [5], 4: [5] };
+            if (idx === selectedHouse) return "center";
+            if ((origens[selectedHouse] || []).includes(idx)) return "flow-up";
+            if ((alvos[selectedHouse] || []).includes(idx)) return "bridge";
+          }
+        } else if (topicId.includes("camada")) {
+          if (selectedHouse !== null) {
+            const camada = selectedHouse < 3 ? [0, 1, 2] : selectedHouse < 5 ? [3, 4] : [5];
+            if (camada.includes(idx)) return idx === selectedHouse ? "center" : "axis";
+          }
+        } else if (topicId.includes("base")) {
+          if (idx === 5) return "center";
+          if (selectedHouse !== null && [3, 4].includes(selectedHouse) && idx === selectedHouse) return "bridge";
+        }
       }
     }
 
     if (spreadType === "relogio" && !studyMode.active) {
       if (idx === 12) return "center";
-      if (
-        selectedHouse !== null &&
-        idx === Geometry.getOposicaoRelogio(selectedHouse)
-      )
-        return "axis";
+      if (selectedHouse !== null && idx === Geometry.getOposicaoRelogio(selectedHouse)) return "axis";
     }
 
     return null;
@@ -2508,114 +2526,72 @@ const App: React.FC = () => {
                   interativo.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-indigo-300 transition-all shadow-sm group">
                   <div className="flex items-center gap-3 mb-4 text-indigo-600">
                     <LayoutGrid size={24} />
-                    <h3 className="font-bold text-lg text-slate-900">
-                      Mesa Real
-                    </h3>
+                    <h3 className="font-bold text-lg text-slate-900">Mesa Real</h3>
                   </div>
                   <ul className="space-y-2">
-                    <li
-                      onClick={() => handlePracticeMode("frame", "mesa-real")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"
-                    >
-                      <span>A Moldura (Frame)</span> <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() =>
-                        handlePracticeMode("veredict", "mesa-real")
-                      }
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"
-                    >
-                      <span>Veredito Final (4 Últimas)</span>{" "}
-                      <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() => handlePracticeMode("knight", "mesa-real")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"
-                    >
-                      <span>Movimento do Cavalo</span>{" "}
-                      <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() => handlePracticeMode("mirror", "mesa-real")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"
-                    >
-                      <span>Espelhamentos</span> <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() =>
-                        handlePracticeMode("diagonals", "mesa-real")
-                      }
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"
-                    >
-                      <span>Diagonais</span> <ChevronRight size={14} />
-                    </li>
+                    <li onClick={() => handlePracticeMode("frame", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>A Moldura (Frame)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("veredict", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>Veredito Final (4 Últimas)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("knight", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>Movimento do Cavalo</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("mirror", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>Espelhamentos</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("diagonals", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>Diagonais</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("ponte", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>Ponte do Significador</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("mesa-linhas", "mesa-real")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-indigo-700 transition-colors"><span>Linhas & Colunas (Tempo e Ambiente)</span> <ChevronRight size={14} /></li>
                   </ul>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-amber-300 transition-all shadow-sm group">
                   <div className="flex items-center gap-3 mb-4 text-amber-600">
                     <Clock size={24} />
-                    <h3 className="font-bold text-lg text-slate-900">
-                      Relógio Cigano
-                    </h3>
+                    <h3 className="font-bold text-lg text-slate-900">Relógio Cigano</h3>
                   </div>
                   <ul className="space-y-2">
-                    <li
-                      onClick={() => handlePracticeMode("center", "relogio")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"
-                    >
-                      <span>Carta Central (Tema)</span>{" "}
-                      <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() => handlePracticeMode("house", "relogio")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"
-                    >
-                      <span>As 12 Casas</span> <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() =>
-                        handlePracticeMode("opposition", "relogio")
-                      }
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"
-                    >
-                      <span>Eixos de Oposição</span> <ChevronRight size={14} />
-                    </li>
+                    <li onClick={() => handlePracticeMode("center", "relogio")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"><span>Carta Central (Tema)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("house", "relogio")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"><span>As 12 Casas</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("opposition", "relogio")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"><span>Eixos de Oposição</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("relogio-tempo", "relogio")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-amber-700 transition-colors"><span>Dinâmica do Tempo (Ciclo)</span> <ChevronRight size={14} /></li>
                   </ul>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-purple-300 transition-all shadow-sm group">
                   <div className="flex items-center gap-3 mb-4 text-purple-600">
                     <Grid3x3 size={24} />
-                    <h3 className="font-bold text-lg text-slate-900">
-                      Mesa de 9
-                    </h3>
+                    <h3 className="font-bold text-lg text-slate-900">Mesa de 9</h3>
                   </div>
                   <ul className="space-y-2">
-                    <li
-                      onClick={() => handlePracticeMode("center", "mesa-9")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"
-                    >
-                      <span>Carta Central (Foco)</span>{" "}
-                      <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() => handlePracticeMode("cross", "mesa-9")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"
-                    >
-                      <span>A Cruz (Vertical/Horizontal)</span>{" "}
-                      <ChevronRight size={14} />
-                    </li>
-                    <li
-                      onClick={() => handlePracticeMode("diagonals", "mesa-9")}
-                      className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"
-                    >
-                      <span>Diagonais (X)</span> <ChevronRight size={14} />
-                    </li>
+                    <li onClick={() => handlePracticeMode("center", "mesa-9")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"><span>Carta Central (Foco)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("cross", "mesa-9")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"><span>A Cruz (Vertical/Horizontal)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("diagonals", "mesa-9")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"><span>Diagonais (X)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("m9-colunas", "mesa-9")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"><span>Colunas de Tempo</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("m9-linhas", "mesa-9")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"><span>Linhas de Plano</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("m9-moldura", "mesa-9")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-purple-700 transition-colors"><span>Moldura & Cantos</span> <ChevronRight size={14} /></li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-rose-200 hover:border-rose-300 transition-all shadow-sm group">
+                  <div className="flex items-center gap-3 mb-4 text-rose-600">
+                    <Heart size={24} />
+                    <h3 className="font-bold text-lg text-slate-900">Templo de Afrodite</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    <li onClick={() => handlePracticeMode("afrodite-par", "templo-afrodite")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-rose-700 transition-colors"><span>Planos Espelhados (Par Eu–Tu)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("afrodite-polos", "templo-afrodite")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-rose-700 transition-colors"><span>Polos em Comparação</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("afrodite-sintese", "templo-afrodite")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-rose-700 transition-colors"><span>A Síntese do Vínculo</span> <ChevronRight size={14} /></li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-orange-200 hover:border-orange-300 transition-all shadow-sm group">
+                  <div className="flex items-center gap-3 mb-4 text-orange-600">
+                    <Triangle size={24} />
+                    <h3 className="font-bold text-lg text-slate-900">Pirâmide da Síntese</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    <li onClick={() => handlePracticeMode("piramide-fluxo", "piramide")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-orange-700 transition-colors"><span>Fluxo de Influência (Topo→Base)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("piramide-camadas", "piramide")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-orange-700 transition-colors"><span>Camadas (Mental / Ação / Síntese)</span> <ChevronRight size={14} /></li>
+                    <li onClick={() => handlePracticeMode("piramide-base", "piramide")} className="p-3 rounded-xl hover:bg-slate-50 cursor-pointer flex justify-between items-center text-sm text-slate-600 hover:text-orange-700 transition-colors"><span>A Base como Síntese</span> <ChevronRight size={14} /></li>
                   </ul>
                 </div>
               </div>
